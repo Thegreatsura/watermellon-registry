@@ -104,8 +104,8 @@ export const Chart = memo(function Chart({
               dataKey={s.key}
               fill={seriesColors[i]}
               radius={4}
-              onClick={(data) =>
-                handleDataPointClick(s.key, s.label, data.payload, data.index)
+              onClick={(data, index) =>
+                handleDataPointClick(s.key, s.label, data.payload, index)
               }
               cursor={onDataPointClick ? "pointer" : undefined}
             />
@@ -123,18 +123,14 @@ export const Chart = memo(function Chart({
               activeDot={{
                 r: 6,
                 cursor: onDataPointClick ? "pointer" : undefined,
-                // Recharts types are incorrect - onClick receives (event, dotData) at runtime
-                onClick: ((
-                  _: unknown,
-                  dotData: { payload: Record<string, unknown>; index: number },
-                ) => {
-                  handleDataPointClick(
-                    s.key,
-                    s.label,
-                    dotData.payload,
-                    dotData.index,
-                  );
-                }) as unknown as React.MouseEventHandler,
+                // Recharts 3 passes the active dot's props (payload, index) first.
+                onClick: (dotProps) => {
+                  const dot = dotProps as unknown as {
+                    payload: Record<string, unknown>;
+                    index: number;
+                  };
+                  handleDataPointClick(s.key, s.label, dot.payload, dot.index);
+                },
               }}
             />
           ))}
@@ -282,8 +278,8 @@ function ChartTooltipContent({
   color,
   nameKey,
   labelKey,
-}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-  React.ComponentProps<"div"> & {
+}: React.ComponentProps<"div"> &
+  Partial<RechartsPrimitive.TooltipContentProps> & {
     hideLabel?: boolean;
     hideIndicator?: boolean;
     indicator?: "line" | "dot" | "dashed";
@@ -352,7 +348,7 @@ function ChartTooltipContent({
 
             return (
               <div
-                key={item.dataKey}
+                key={String(item.dataKey)}
                 className={cn(
                   "[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5",
                   indicator === "dot" && "items-center",
@@ -423,7 +419,8 @@ function ChartLegendContent({
   verticalAlign = "bottom",
   nameKey,
 }: React.ComponentProps<"div"> &
-  Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
+  Pick<RechartsPrimitive.LegendProps, "verticalAlign"> & {
+    payload?: ReadonlyArray<RechartsPrimitive.LegendPayload>
     hideIcon?: boolean;
     nameKey?: string;
   }) {
@@ -472,7 +469,6 @@ function ChartLegendContent({
   );
 }
 
-// Helper to extract item config from a payload.
 function getPayloadConfigFromPayload(
   config: ChartConfig,
   payload: unknown,

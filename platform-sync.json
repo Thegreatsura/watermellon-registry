@@ -1084,7 +1084,7 @@
       "src/components/dashboards/medesk-dashboard/data.tsx": "data.tsx",
       "src/components/dashboards/medesk-dashboard/demo.tsx": "demo.tsx"
     },
-    "platformCommit": "603d0f20dbbe9c868b8bef327af28c5b761ceec7"
+    "platformCommit": "42838eacdddfb5fa58c2b707f50e6f5e1540d321"
   },
   "navigation-1": {
     "platformDir": "src/data/contents/blocks/navigation/navigation-1",
