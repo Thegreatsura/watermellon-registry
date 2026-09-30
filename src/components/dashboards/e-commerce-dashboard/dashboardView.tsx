@@ -216,7 +216,7 @@ export const DashboardView = () => {
                         border: "1px solid var(--border)",
                         borderRadius: "8px",
                       }}
-                      formatter={(value) => `$${value.toLocaleString()}`}
+                      formatter={(value) => `$${(value ?? 0).toLocaleString()}`}
                     />
                     <Area
                       type="monotone"
